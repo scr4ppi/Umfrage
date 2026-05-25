@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ferienhaus-Umfrage</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f4efe6;
+      --card: #fffaf1;
+      --card-2: #fffdf8;
+      --text: #22201d;
+      --muted: #6f6253;
+      --accent: #1f5f73;
+      --accent-dark: #133f4c;
+      --border: rgba(64, 42, 22, 0.18);
+      --shadow: 0 18px 45px rgba(55, 40, 20, 0.12);
+      --danger: #9b2c2c;
+      --success: #2f6f4e;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(31, 95, 115, 0.18), transparent 35%),
+        linear-gradient(135deg, #f4efe6, #e7d6ba);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1280px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 46px;
+    }
+
+    header,
+    .panel,
+    .results {
+      background: rgba(255, 250, 241, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    header {
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4.8vw, 3.8rem);
+      line-height: 1;
+    }
+
+    .intro {
+      margin: 0;
+      max-width: 800px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 1.03rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .left,
+    .right {
+      display: grid;
+      gap: 18px;
+    }
+
+    .right {
+      position: sticky;
+      top: 16px;
+    }
+
+    .panel,
+    .results {
+      padding: 18px;
+    }
+
+    h2 {
+      margin: 0 0 13px;
+      font-size: 1.25rem;
+    }
+
+    h3 {
+      margin: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 900;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      border-radius: 12px;
+      padding: 11px 12px;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(31, 95, 115, 0.7);
+      box-shadow: 0 0 0 4px rgba(31, 95, 115, 0.12);
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-soft {
+      background: #efe0c8;
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: rgba(155, 44, 44, 0.12);
+      color: var(--danger);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .hint {
+      margin: 9px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.9rem;
+    }
+
+    .vote-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .vote-card,
+    .house-card,
+    .admin-card,
+    .saved-vote {
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .vote-card img,
+    .house-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      background: #e8dcc8;
+    }
+
+    .vote-body,
+    .house-body,
+    .admin-card,
+    .saved-vote {
+      padding: 13px;
+    }
+
+    .vote-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 11px;
+    }
+
+    .vote-top h3 {
+      font-size: 1.05rem;
+      line-height: 1.25;
+    }
+
+    .vote-top a,
+    .house-body a {
+      color: var(--accent-dark);
+      font-weight: 900;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .vote-top a:hover,
+    .house-body a:hover {
+      text-decoration: underline;
+    }
+
+    .rank-select-wrap {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .rank-select-wrap span {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .admin-list,
+    .house-list,
+    .saved-list,
+    .result-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .admin-grid .full {
+      grid-column: 1 / -1;
+    }
+
+    .saved-vote strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .saved-vote small {
+      display: block;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .results {
+      margin-top: 18px;
+    }
+
+    .winner-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .winner {
+      color: var(--success);
+      font-weight: 900;
+    }
+
+    .result-row {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .result-position {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #efe0c8;
+      font-weight: 900;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 5px;
+      font-weight: 900;
+    }
+
+    .bar-bg {
+      height: 13px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(31, 95, 115, 0.12);
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #58a7b9);
+      border-radius: inherit;
+    }
+
+    .score {
+      white-space: nowrap;
+      font-weight: 900;
+      color: var(--accent-dark);
+    }
+
+    @media (max-width: 1000px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .right {
+        position: static;
+      }
+
+      .house-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 18px, 1280px);
+        padding-top: 14px;
+      }
+
+      header,
+      .panel,
+      .results {
+        border-radius: 14px;
+      }
+
+      .vote-grid,
+      .house-list,
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-row {
+        grid-template-columns: 34px 1fr;
+      }
+
+      .score {
+        grid-column: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="eyebrow">Ferienhaus-Umfrage</p>
+      <h1>Eintragen, bewerten, Ergebnis sehen</h1>
+      <p class="intro">
+        Jede Person trägt ihren Namen ein und vergibt bei jedem Ferienhaus einen Rang von 1 bis 5.
+        Rang 1 zählt am meisten, Rang 5 am wenigsten. Das Ergebnis wird unten direkt berechnet.
+      </p>
+    </header>
+
+    <div class="layout">
+      <div class="left">
+        <section class="panel">
+          <h2>Abstimmen</h2>
+          <label for="voterName">Dein Name</label>
+          <input id="voterName" type="text" placeholder="Name eintragen" />
+          <p class="hint">Jeder Rang darf nur einmal vergeben werden. Beispiel: Dein Favorit bekommt Rang 1.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Ränge vergeben</h2>
+          <div id="voteGrid" class="vote-grid"></div>
+          <div class="actions">
+            <button id="saveVote" class="btn-primary">Stimme speichern</button>
+            <button id="clearCurrentVote" class="btn-soft">Auswahl leeren</button>
+          </div>
+        </section>
+
+        <section class="results">
+          <h2>Ergebnis</h2>
+          <p id="winnerText" class="winner-text">Noch keine Stimmen gespeichert.</p>
+          <div id="resultList" class="result-list"></div>
+          <div class="actions">
+            <button id="copyResult" class="btn-soft">Ergebnis kopieren</button>
+            <button id="resetAllVotes" class="btn-danger">Alle Stimmen löschen</button>
+          </div>
+        </section>
+      </div>
+
+      <aside class="right">
+        <section class="panel">
+          <h2>Alternativen</h2>
+          <div id="houseList" class="house-list"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Gespeicherte Stimmen</h2>
+          <div id="savedList" class="saved-list"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Ferienhäuser bearbeiten</h2>
+          <div id="adminList" class="admin-list"></div>
+          <div class="actions">
+            <button id="addHouse" class="btn-soft">Ferienhaus hinzufügen</button>
+          </div>
+          <p class="hint">Name, Link und Bild kannst du direkt ändern. Maximal sinnvoll sind hier 5 Alternativen, weil die Dropdowns 1–5 nutzen.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80";
+
+    let houses = [
+      {
+        id: "haus-1",
+        name: "Ferienhaus 1",
+        link: "",
+        image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        id: "haus-2",
+        name: "Ferienhaus 2",
+        link: "",
+        image: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        id: "haus-3",
+        name: "Ferienhaus 3",
+        link: "",
+        image: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        id: "haus-4",
+        name: "Ferienhaus 4",
+        link: "",
+        image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        id: "haus-5",
+        name: "Ferienhaus 5",
+        link: "",
+        image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=900&q=80"
+      }
+    ];
+
+    let votes = [];
+
+    const voterName = document.getElementById("voterName");
+    const voteGrid = document.getElementById("voteGrid");
+    const houseList = document.getElementById("houseList");
+    const adminList = document.getElementById("adminList");
+    const savedList = document.getElementById("savedList");
+    const winnerText = document.getElementById("winnerText");
+    const resultList = document.getElementById("resultList");
+
+    function renderVoteGrid() {
+      voteGrid.innerHTML = "";
+
+      houses.forEach(house => {
+        const card = document.createElement("article");
+        card.className = "vote-card";
+        card.innerHTML = `
+          <img src="${escapeAttribute(house.image || PLACEHOLDER_IMAGE)}" alt="${escapeAttribute(house.name)}" onerror="this.src='${PLACEHOLDER_IMAGE}'" />
+          <div class="vote-body">
+            <div class="vote-top">
+              <h3>${escapeHtml(house.name)}</h3>
+              ${house.link ? `<a href="${escapeAttribute(house.link)}" target="_blank" rel="noopener noreferrer">Link →</a>` : ""}
+            </div>
+            <label for="rank-${house.id}">Rang auswählen</label>
+            <div class="rank-select-wrap">
+              <span>1 = bester</span>
+              <select id="rank-${house.id}" class="rank-select" data-house-id="${escapeAttribute(house.id)}">
+                <option value="">-</option>
+                ${houses.map((_, index) => `<option value="${index + 1}">${index + 1}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+        `;
+
+        voteGrid.appendChild(card);
+      });
+
+      document.querySelectorAll(".rank-select").forEach(select => {
+        select.addEventListener("change", handleDuplicateRanks);
+      });
+    }
+
+    function renderHouseList() {
+      houseList.innerHTML = "";
+
+      houses.forEach(house => {
+        const card = document.createElement("article");
+        card.className = "house-card";
+        card.innerHTML = `
+          <img src="${escapeAttribute(house.image || PLACEHOLDER_IMAGE)}" alt="${escapeAttribute(house.name)}" onerror="this.src='${PLACEHOLDER_IMAGE}'" />
+          <div class="house-body">
+            <h3>${escapeHtml(house.name)}</h3>
+            ${house.link ? `<a href="${escapeAttribute(house.link)}" target="_blank" rel="noopener noreferrer">Angebot öffnen →</a>` : `<p class="hint">Kein Link eingetragen</p>`}
+          </div>
+        `;
+        houseList.appendChild(card);
+      });
+    }
+
+    function renderAdminList() {
+      adminList.innerHTML = "";
+
+      houses.forEach((house, index) => {
+        const card = document.createElement("article");
+        card.className = "admin-card";
+        card.innerHTML = `
+          <div class="admin-grid">
+            <div>
+              <label>Name</label>
+              <input type="text" data-field="name" value="${escapeAttribute(house.name)}" />
+            </div>
+            <div>
+              <label>Link</label>
+              <input type="text" data-field="link" value="${escapeAttribute(house.link)}" placeholder="https://..." />
+            </div>
+            <div class="full">
+              <label>Bild-URL</label>
+              <input type="text" data-field="image" value="${escapeAttribute(house.image)}" placeholder="https://...jpg" />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn-danger" type="button">Entfernen</button>
+          </div>
+        `;
+
+        card.querySelectorAll("input").forEach(input => {
+          input.addEventListener("input", () => {
+            houses[index][input.dataset.field] = input.value.trim();
+            renderVoteGrid();
+            renderHouseList();
+            renderResults();
+          });
+        });
+
+        card.querySelector("button").addEventListener("click", () => {
+          if (houses.length <= 2) {
+            alert("Mindestens 2 Ferienhäuser müssen bleiben.");
+            return;
+          }
+
+          const removedId = houses[index].id;
+          houses.splice(index, 1);
+          votes = votes.map(vote => {
+            const nextRanks = { ...vote.ranks };
+            delete nextRanks[removedId];
+            return { ...vote, ranks: nextRanks };
+          });
+          renderAll();
+        });
+
+        adminList.appendChild(card);
+      });
+    }
+
+    function handleDuplicateRanks(event) {
+      const changedSelect = event.target;
+      const selectedValue = changedSelect.value;
+
+      if (!selectedValue) return;
+
+      document.querySelectorAll(".rank-select").forEach(select => {
+        if (select !== changedSelect && select.value === selectedValue) {
+          select.value = "";
+        }
+      });
+    }
+
+    function saveVote() {
+      const name = voterName.value.trim();
+
+      if (!name) {
+        alert("Bitte zuerst einen Namen eintragen.");
+        voterName.focus();
+        return;
+      }
+
+      const selects = Array.from(document.querySelectorAll(".rank-select"));
+      const ranks = {};
+      const selectedRanks = [];
+
+      selects.forEach(select => {
+        if (select.value) {
+          ranks[select.dataset.houseId] = Number(select.value);
+          selectedRanks.push(Number(select.value));
+        }
+      });
+
+      if (selectedRanks.length !== houses.length) {
+        alert("Bitte jedem Ferienhaus einen Rang geben.");
+        return;
+      }
+
+      const uniqueRanks = new Set(selectedRanks);
+      if (uniqueRanks.size !== selectedRanks.length) {
+        alert("Jeder Rang darf nur einmal vergeben werden.");
+        return;
+      }
+
+      const existingIndex = votes.findIndex(vote => vote.name.toLowerCase() === name.toLowerCase());
+      const vote = { name, ranks };
+
+      if (existingIndex >= 0) {
+        votes[existingIndex] = vote;
+      } else {
+        votes.push(vote);
+      }
+
+      voterName.value = "";
+      clearCurrentVote(false);
+      renderSavedVotes();
+      renderResults();
+    }
+
+    function clearCurrentVote(showMessage = true) {
+      document.querySelectorAll(".rank-select").forEach(select => {
+        select.value = "";
+      });
+
+      if (showMessage) {
+        voterName.focus();
+      }
+    }
+
+    function renderSavedVotes() {
+      savedList.innerHTML = "";
+
+      if (!votes.length) {
+        savedList.innerHTML = `<p class="hint">Noch keine Stimmen gespeichert.</p>`;
+        return;
+      }
+
+      votes.forEach((vote, index) => {
+        const sorted = Object.entries(vote.ranks)
+          .map(([houseId, rank]) => ({ house: houses.find(h => h.id === houseId), rank }))
+          .filter(item => item.house)
+          .sort((a, b) => a.rank - b.rank)
+          .map(item => `${item.rank}. ${item.house.name}`)
+          .join(" · ");
+
+        const item = document.createElement("article");
+        item.className = "saved-vote";
+        item.innerHTML = `
+          <strong>${escapeHtml(vote.name)}</strong>
+          <small>${escapeHtml(sorted)}</small>
+          <div class="actions">
+            <button class="btn-danger" type="button">Stimme löschen</button>
+          </div>
+        `;
+
+        item.querySelector("button").addEventListener("click", () => {
+          votes.splice(index, 1);
+          renderSavedVotes();
+          renderResults();
+        });
+
+        savedList.appendChild(item);
+      });
+    }
+
+    function calculateResults() {
+      const scores = Object.fromEntries(houses.map(house => [house.id, 0]));
+
+      votes.forEach(vote => {
+        houses.forEach(house => {
+          const rank = vote.ranks[house.id];
+          if (!rank) return;
+          scores[house.id] += houses.length - rank + 1;
+        });
+      });
+
+      return houses
+        .map(house => ({
+          ...house,
+          score: scores[house.id] || 0
+        }))
+        .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, "de"));
+    }
+
+    function renderResults() {
+      const results = calculateResults();
+      resultList.innerHTML = "";
+
+      if (!votes.length) {
+        winnerText.textContent = "Noch keine Stimmen gespeichert.";
+        return;
+      }
+
+      const topScore = results[0]?.score || 0;
+      const winners = results.filter(result => result.score === topScore);
+      const maxScore = Math.max(...results.map(result => result.score), 1);
+
+      if (winners.length === 1) {
+        winnerText.innerHTML = `Aktuell vorne: <span class="winner">${escapeHtml(winners[0].name)}</span> mit ${winners[0].score} Punkten.`;
+      } else {
+        winnerText.innerHTML = `Aktuell Gleichstand zwischen: <span class="winner">${winners.map(winner => escapeHtml(winner.name)).join(", ")}</span>.`;
+      }
+
+      results.forEach((result, index) => {
+        const percentage = (result.score / maxScore) * 100;
+        const row = document.createElement("div");
+        row.className = "result-row";
+        row.innerHTML = `
+          <div class="result-position">${index + 1}</div>
+          <div>
+            <div class="bar-label">
+              <span>${escapeHtml(result.name)}</span>
+              <span>${result.score}</span>
+            </div>
+            <div class="bar-bg">
+              <div class="bar" style="width: ${percentage}%"></div>
+            </div>
+          </div>
+          <div class="score">${result.score} Punkte</div>
+        `;
+        resultList.appendChild(row);
+      });
+    }
+
+    function copyResult() {
+      const text = calculateResults()
+        .map((result, index) => `${index + 1}. ${result.name}: ${result.score} Punkte${result.link ? ` | ${result.link}` : ""}`)
+        .join("
+");
+
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Ergebnis wurde kopiert."))
+        .catch(() => alert(text));
+    }
+
+    function addHouse() {
+      if (houses.length >= 5) {
+        alert("Für diese einfache Version sind maximal 5 Ferienhäuser vorgesehen.");
+        return;
+      }
+
+      const nextNumber = houses.length + 1;
+      houses.push({
+        id: `haus-${Date.now()}`,
+        name: `Ferienhaus ${nextNumber}`,
+        link: "",
+        image: ""
+      });
+      renderAll();
+    }
+
+    function resetAllVotes() {
+      if (!votes.length) return;
+      if (!confirm("Wirklich alle gespeicherten Stimmen löschen?")) return;
+      votes = [];
+      renderSavedVotes();
+      renderResults();
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttribute(text) {
+      return escapeHtml(text).replaceAll("`", "&#096;");
+    }
+
+    function renderAll() {
+      renderVoteGrid();
+      renderHouseList();
+      renderAdminList();
+      renderSavedVotes();
+      renderResults();
+    }
+
+    document.getElementById("saveVote").addEventListener("click", saveVote);
+    document.getElementById("clearCurrentVote").addEventListener("click", () => clearCurrentVote(true));
+    document.getElementById("copyResult").addEventListener("click", copyResult);
+    document.getElementById("resetAllVotes").addEventListener("click", resetAllVotes);
+    document.getElementById("addHouse").addEventListener("click", addHouse);
+
+    renderAll();
+  </script>
+</body>
+</html>
