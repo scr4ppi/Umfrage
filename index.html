@@ -438,7 +438,7 @@
           <div class="actions">
             <button id="addHouse" class="btn-soft">Ferienhaus hinzufügen</button>
           </div>
-          <p class="hint">Name, Link und Bild kannst du direkt ändern. Maximal sinnvoll sind hier 5 Alternativen, weil die Dropdowns 1–5 nutzen.</p>
+          <p class="hint">Name, Link und Bild kannst du direkt ändern. Du kannst bis zu 5 Ferienhäuser anlegen, passend zu den Dropdown-Rängen 1–5.</p>
         </section>
       </aside>
     </div>
@@ -465,18 +465,6 @@
         name: "Ferienhaus 3",
         link: "",
         image: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=900&q=80"
-      },
-      {
-        id: "haus-4",
-        name: "Ferienhaus 4",
-        link: "",
-        image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=900&q=80"
-      },
-      {
-        id: "haus-5",
-        name: "Ferienhaus 5",
-        link: "",
-        image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=900&q=80"
       }
     ];
 
@@ -761,8 +749,7 @@
     function copyResult() {
       const text = calculateResults()
         .map((result, index) => `${index + 1}. ${result.name}: ${result.score} Punkte${result.link ? ` | ${result.link}` : ""}`)
-        .join("
-");
+        .join("\\n");
 
       navigator.clipboard.writeText(text)
         .then(() => alert("Ergebnis wurde kopiert."))
